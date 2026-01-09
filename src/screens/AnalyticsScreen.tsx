@@ -15,6 +15,7 @@ import { format, subDays, isSameDay, startOfDay, getDay, getHours } from 'date-f
 import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import LinearGradient from 'react-native-linear-gradient';
+import { useI18nStore } from '../i18n';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width - 48;
@@ -24,6 +25,7 @@ export const AnalyticsScreen = () => {
     const logs = useHushStore(state => state.logs);
     const isPremium = useHushStore(state => state.isPremium);
     const navigation = useNavigation();
+    const { t } = useI18nStore();
     const [tooltip, setTooltip] = useState<{ day: string, hour: string, count: number, x: number, y: number } | null>(null);
 
     // --- DATA CALCULATIONS ---
@@ -248,42 +250,75 @@ export const AnalyticsScreen = () => {
         return `${hour}:00`;
     }
 
+    // --- RENDER ---
+
+
+    // Insight Text Logic
+    let insightText = t('analytics_insight_same');
+    if (premiumStats.percentChange > 0) insightText = t('analytics_insight_more', { percent: premiumStats.percentChange });
+    if (premiumStats.percentChange < 0) insightText = t('analytics_insight_less', { percent: Math.abs(premiumStats.percentChange) });
+
     return (
         <ScreenWrapper>
             <FlatList
                 ListHeaderComponent={
                     <>
                         <View style={styles.header}>
-                            <ThemedText variant="header">Insights</ThemedText>
-                            <ThemedText variant="caption" color={colors.text.tertiary}>Today's Overview</ThemedText>
+                            <ThemedText variant="header">{t('analytics_header')}</ThemedText>
+                            <ThemedText variant="caption" color={colors.text.tertiary}>{t('analytics_subtitle')}</ThemedText>
                         </View>
+
+                        {/* --- WEEKLY INSIGHT (NEW MVP ELEMENT) --- */}
+                        <Card style={[styles.chartCard, { paddingVertical: 16 }]}>
+                            <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                                <View style={{ padding: 8, backgroundColor: 'rgba(94, 234, 212, 0.1)', borderRadius: 12, marginRight: 16 }}>
+                                    <TrendingUp size={20} color={colors.primary} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <ThemedText variant="body" style={{ fontWeight: 'bold', marginBottom: 4 }}>{t('analytics_weekly_insight')}</ThemedText>
+                                    <ThemedText variant="caption" color={colors.text.secondary} style={{ lineHeight: 20 }}>
+                                        {insightText}
+                                    </ThemedText>
+                                </View>
+                            </View>
+                        </Card>
 
                         {/* --- FREE SECTION (TOP) --- */}
                         <Card style={styles.chartCard}>
                             <View style={{ marginBottom: 20 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                    <ThemedText variant="title">Activity</ThemedText>
+                                    <ThemedText variant="title">{t('analytics_activity')}</ThemedText>
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Shield size={14} color={colors.primary} style={{ marginRight: 6 }} />
                                         <ThemedText variant="caption" style={{ fontWeight: 'bold', color: colors.primary }}>
-                                            {totalToday} BLOCKED
+                                            {totalToday} {t('analytics_blocked_caps')}
                                         </ThemedText>
                                     </View>
                                 </View>
                             </View>
                             <BarChart
                                 data={dailyBlockedData}
-                                barWidth={32} spacing={14} roundedTop hideRules
-                                xAxisThickness={0} yAxisThickness={0} hideYAxisText
-                                height={120} width={CARD_WIDTH - 48}
-                                maxValue={maxDailyBlocked + 2} initialSpacing={8} isAnimated
+                                barWidth={32}
+                                spacing={8}
+                                roundedTop
+                                hideRules
+                                xAxisThickness={0}
+                                yAxisThickness={0}
+                                hideYAxisText
+                                height={140}
+                                width={CARD_WIDTH - 64}
+                                maxValue={maxDailyBlocked + 2}
+                                initialSpacing={8}
+                                isAnimated={false}
+                                activeOpacity={0.8}
+                                noOfSections={3}
                             />
                             <View style={styles.chartFooter}>
                                 <ThemedText variant="body" style={{ fontWeight: '500' }}>
-                                    {totalToday > 0 ? "Active blocking today" : "Quiet day so far"}
+                                    {totalToday > 0 ? t('analytics_active_today') : t('analytics_quiet_today')}
                                 </ThemedText>
                                 <ThemedText variant="caption" color={colors.text.tertiary}>
-                                    {hasData ? `Most distractions happened around ${formatTime(peakHour)}` : "No major distractions recorded yet"}
+                                    {hasData ? t('analytics_peak_time', { time: formatTime(peakHour) }) : t('analytics_no_peak')}
                                 </ThemedText>
                             </View>
                         </Card>
@@ -296,7 +331,7 @@ export const AnalyticsScreen = () => {
                                     </View>
                                     <View style={{ marginLeft: 16 }}>
                                         <ThemedText variant="body" style={{ fontWeight: 'bold', color: colors.status.error }}>{todaysTopDistractor.name}</ThemedText>
-                                        <ThemedText variant="caption" color={colors.text.secondary}>Distracted you most today</ThemedText>
+                                        <ThemedText variant="caption" color={colors.text.secondary}>{t('analytics_distracted_most')}</ThemedText>
                                     </View>
                                 </View>
                             ) : (
@@ -305,8 +340,8 @@ export const AnalyticsScreen = () => {
                                         <CheckCircle size={24} color={colors.primary} />
                                     </View>
                                     <View style={{ marginLeft: 16 }}>
-                                        <ThemedText variant="body" style={{ fontWeight: 'bold', color: colors.primary }}>Pure Focus</ThemedText>
-                                        <ThemedText variant="caption" color={colors.text.secondary}>No major distractions today. Nice focus 👏</ThemedText>
+                                        <ThemedText variant="body" style={{ fontWeight: 'bold', color: colors.primary }}>{t('analytics_pure_focus')}</ThemedText>
+                                        <ThemedText variant="caption" color={colors.text.secondary}>{t('analytics_pure_focus_desc')}</ThemedText>
                                     </View>
                                 </View>
                             )}
@@ -314,16 +349,16 @@ export const AnalyticsScreen = () => {
 
                         {/* --- PREMIUM SECTION (BOTTOM) --- */}
                         <View style={styles.premiumSection}>
-                            <ThemedText variant="caption" style={styles.premiumLabel}>DEEPER INSIGHTS (PREMIUM)</ThemedText>
+                            <ThemedText variant="caption" style={styles.premiumLabel}>{t('analytics_premium_section')}</ThemedText>
 
                             {/* NEW: Heatmap Card (Hero) */}
                             <Card style={[styles.premiumGroup, { marginBottom: 16, padding: 0 }]}>
                                 <View style={{ padding: 20 }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                                         <View>
-                                            <ThemedText variant="title">Activity Pattern</ThemedText>
+                                            <ThemedText variant="title">{t('analytics_activity_pattern')}</ThemedText>
                                             <ThemedText variant="caption" color={colors.text.tertiary}>
-                                                {isPremium ? activeTimesText : "See when you are most distracted"}
+                                                {isPremium ? activeTimesText : t('analytics_activity_desc')}
                                             </ThemedText>
                                         </View>
                                         {!isPremium && <Lock size={16} color={colors.accent} />}
@@ -366,7 +401,7 @@ export const AnalyticsScreen = () => {
                                             <View style={{ position: 'absolute', top: 50, left: 0, right: 0, alignItems: 'center', zIndex: 20 }}>
                                                 <View style={styles.tooltipBox}>
                                                     <ThemedText variant="caption" style={{ fontWeight: 'bold' }}>{tooltip.day} · {tooltip.hour}</ThemedText>
-                                                    <ThemedText variant="caption" color={colors.accent}>{tooltip.count} blocked</ThemedText>
+                                                    <ThemedText variant="caption" color={colors.accent}>{tooltip.count} {t('analytics_tooltip_blocked')}</ThemedText>
                                                 </View>
                                             </View>
                                         )}
@@ -381,7 +416,7 @@ export const AnalyticsScreen = () => {
                                                         style={{ borderRadius: 20, padding: 1, opacity: 0.8 }}
                                                     >
                                                         <View style={{ backgroundColor: '#000', borderRadius: 19, paddingHorizontal: 16, paddingVertical: 8 }}>
-                                                            <ThemedText variant="caption" style={{ fontWeight: 'bold', color: '#fff' }}>Premium Feature</ThemedText>
+                                                            <ThemedText variant="caption" style={{ fontWeight: 'bold', color: '#fff' }}>{t('analytics_premium_feature')}</ThemedText>
                                                         </View>
                                                     </LinearGradient>
                                                 </View>
@@ -397,8 +432,8 @@ export const AnalyticsScreen = () => {
                                 {/* Row 1: Focus Quality */}
                                 <InsightRow
                                     icon={Zap}
-                                    title={isPremium ? `Focus Score: ${premiumStats.score}` : "Focus Quality Score"}
-                                    subtext={isPremium ? "Based on real-time blocking efficiency" : "Your focus could be stronger today"}
+                                    title={isPremium ? `${t('analytics_focus_score')}: ${premiumStats.score}` : t('analytics_focus_score')}
+                                    subtext={isPremium ? t('analytics_focus_score_desc') : t('analytics_focus_score_desc')}
                                     locked={!isPremium}
                                     onPress={() => navigation.navigate('Premium' as never)}
                                     expandedContent={
@@ -418,10 +453,10 @@ export const AnalyticsScreen = () => {
                                 {/* Row 2: Causes */}
                                 <InsightRow
                                     icon={Smartphone}
-                                    title={isPremium ? "Primary Distraction Source" : "Causes & Patterns"}
+                                    title={isPremium ? t('analytics_causes') : t('analytics_causes')} // simplified translation usage
                                     subtext={isPremium
                                         ? `${todaysTopDistractor?.name || 'No apps'} caused ${todaysTopDistractor?.percent || 0}% of interruptions`
-                                        : "One app consistently breaks your focus"}
+                                        : t('analytics_causes_desc')}
                                     locked={!isPremium}
                                     onPress={() => navigation.navigate('Premium' as never)}
                                 />
@@ -430,10 +465,10 @@ export const AnalyticsScreen = () => {
                                 {/* Row 3: Trends */}
                                 <InsightRow
                                     icon={TrendingUp}
-                                    title={isPremium ? `Weekly Trend: ${premiumStats.trend}` : "Weekly Trend"}
+                                    title={isPremium ? t('analytics_trends') : t('analytics_trends')}
                                     subtext={isPremium
                                         ? `${Math.abs(premiumStats.percentChange)}% change from yesterday`
-                                        : "Your focus pattern is changing this week"}
+                                        : t('analytics_trends_desc')}
                                     locked={!isPremium}
                                     onPress={() => navigation.navigate('Premium' as never)}
                                 />
@@ -449,8 +484,8 @@ export const AnalyticsScreen = () => {
                                             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
                                             style={styles.gradientBtn}
                                         >
-                                            <ThemedText style={{ fontWeight: 'bold', color: '#0F172A' }}>Unlock Deeper Insights</ThemedText>
-                                            <ThemedText style={{ fontSize: 10, color: 'rgba(15, 23, 42, 0.7)', marginTop: 2 }}>See patterns, improve focus, and stay in control</ThemedText>
+                                            <ThemedText style={{ fontWeight: 'bold', color: '#0F172A' }}>{t('analytics_unlock_btn')}</ThemedText>
+                                            <ThemedText style={{ fontSize: 10, color: 'rgba(15, 23, 42, 0.7)', marginTop: 2 }}>{t('analytics_unlock_subtext')}</ThemedText>
                                         </LinearGradient>
                                     </TouchableOpacity>
                                 )}

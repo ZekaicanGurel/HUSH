@@ -27,6 +27,9 @@ export const InsightsScreen = () => {
     const logs = useHushStore(state => state.logs);
     const toggleAppMute = useHushStore(state => state.toggleAppMute);
     const refreshInstalledApps = useHushStore(state => state.refreshInstalledApps);
+    const activeFocusModeId = useHushStore(state => state.activeFocusModeId);
+    const focusModes = useHushStore(state => state.focusModes);
+
     const [refreshing, setRefreshing] = React.useState(false);
 
     React.useEffect(() => {
@@ -52,6 +55,12 @@ export const InsightsScreen = () => {
         return stats;
     }, [logs]);
 
+    // Computed: Active Focus Mode
+    const activeFocusMode = useMemo(() => {
+        if (!activeFocusModeId) return null;
+        return focusModes.find(m => m.id === activeFocusModeId);
+    }, [activeFocusModeId, focusModes]);
+
     return (
         <ScreenWrapper>
             <FlatList
@@ -62,6 +71,7 @@ export const InsightsScreen = () => {
                     </View>
                 }
                 data={apps}
+                extraData={activeFocusModeId}
                 keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContent}
@@ -70,11 +80,15 @@ export const InsightsScreen = () => {
                     const Icon = getIcon(item.iconName);
                     const mutedCount = appStats[item.id] || 0;
 
+                    // Check if blocked by Focus Mode
+                    const isBlockedByFocus = activeFocusMode ? activeFocusMode.blockedAppIds.includes(item.id) : false;
+                    const isEffectivelyMuted = item.isMuted || isBlockedByFocus;
+
                     return (
                         <Card style={styles.appCard}>
                             <View style={styles.cardContent}>
-                                <View style={[styles.iconContainer, item.isMuted && { borderColor: colors.primary, backgroundColor: 'rgba(61, 255, 178, 0.1)' }]}>
-                                    <Icon size={24} color={item.isMuted ? colors.primary : colors.text.secondary} />
+                                <View style={[styles.iconContainer, isEffectivelyMuted && { borderColor: colors.primary, backgroundColor: 'rgba(61, 255, 178, 0.1)' }]}>
+                                    <Icon size={24} color={isEffectivelyMuted ? colors.primary : colors.text.secondary} />
                                 </View>
 
                                 <View style={styles.infoContainer}>
@@ -82,15 +96,20 @@ export const InsightsScreen = () => {
                                     <ThemedText variant="caption" color={colors.text.secondary}>
                                         {item.category} • Blocked {mutedCount} today
                                     </ThemedText>
+                                    {isBlockedByFocus && (
+                                        <ThemedText variant="caption" style={{ color: colors.accent, fontSize: 10, marginTop: 2 }}>
+                                            • Muted by "{activeFocusMode?.name}"
+                                        </ThemedText>
+                                    )}
                                 </View>
 
                                 <TouchableOpacity
-                                    style={[styles.actionButton, item.isMuted && { backgroundColor: colors.primary, borderColor: colors.primary }]}
+                                    style={[styles.actionButton, isEffectivelyMuted && { backgroundColor: colors.primary, borderColor: colors.primary }]}
                                     onPress={() => toggleAppMute(item.id)}
                                     disabled={item.important}
                                 >
-                                    <ThemedText variant="caption" style={{ color: item.isMuted ? colors.background : colors.text.primary, fontWeight: 'bold' }}>
-                                        {item.important ? 'Safe' : (item.isMuted ? 'Unmute' : 'Mute')}
+                                    <ThemedText variant="caption" style={{ color: isEffectivelyMuted ? colors.background : colors.text.primary, fontWeight: 'bold' }}>
+                                        {item.important ? 'Safe' : (isEffectivelyMuted ? (isBlockedByFocus ? 'Focus' : 'Unmute') : 'Mute')}
                                     </ThemedText>
                                 </TouchableOpacity>
                             </View>

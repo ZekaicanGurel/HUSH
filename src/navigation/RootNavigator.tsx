@@ -6,6 +6,7 @@ import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { TabNavigator } from './TabNavigator';
 import { PremiumScreen } from '../screens/PremiumScreen';
 import { FocusEditorScreen } from '../screens/FocusEditorScreen';
+import { PrivacyScreen } from '../screens/PrivacyScreen';
 import { colors } from '../theme/colors';
 
 import { useRevenueCat } from '../hooks/useRevenueCat';
@@ -46,6 +47,7 @@ export const RootNavigator = () => {
                 <Stack.Screen name="Main" component={TabNavigator} />
                 <Stack.Screen name="Premium" component={PremiumScreen} options={{ presentation: 'modal' }} />
                 <Stack.Screen name="FocusEditor" component={FocusEditorScreen} options={{ presentation: 'modal' }} />
+                <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ presentation: 'modal' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

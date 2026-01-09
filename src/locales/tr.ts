@@ -22,7 +22,7 @@ export default {
     home_minutes_saved: "dakika",
     home_minutes_saved_text: "{{minutes}} dakika dikkat dağınıklığını önledin.",
     home_recent_activity: "Son Hareketler",
-    home_waiting: "Bildirim bekleniyor...",
+
 
     // Insight / Wrapper Screen (Apps)
     insights_header: "Yönetilen Uygulamalar",
@@ -59,26 +59,88 @@ export default {
     settings_notifications: "Bildirimler",
     settings_restore: "Satın Alımları Geri Yükle",
     settings_contact: "Destek İletişim",
+    settings_privacy: "Gizlilik Politikası",
     settings_version: "Versiyon",
 
     // Premium / Paywall
     premium_header: "Premium'a Yükselt",
-    premium_title: "Odağında Ustalaş",
-    premium_subtitle: "Detaylı analizlerin, sınırsız kuralların ve akıllı içgörülerin kilidini aç.",
-    premium_feature_1: "Daha az dikkat dağınıklığı",
-    premium_feature_2: "Daha iyi odak",
-    premium_feature_3: "Akıllı bildirim kontrolü",
-    premium_weekly: "Haftalık",
-    premium_monthly: "Aylık",
-    premium_yearly: "Yıllık",
-    premium_lifetime: "Ömür Boyu",
-    premium_best_value: "EN İYİ DEĞER",
-    premium_save_percent: "Yıllık %{{percent}} tasarruf et",
-    premium_cta: "Premium'u Başlat",
-    premium_restore: "Geri Yükle",
-    premium_terms: "Kullanım Şartları",
-    premium_privacy: "Gizlilik",
-    premium_success: "Premium'a Hoşgeldin!",
-    premium_error: "Satın alma başarısız. Lütfen tekrar dene.",
-    premium_billing_issue: "Ödeme Sorunu"
+    premium_title: "Potansiyelini Açığa Çıkar",
+    premium_subtitle: "Odaklanmak her şeyi engellemek değil, yönetmektir. HUSH Premium ile zihnini özgürleştir.",
+    premium_feature_1: "Sınırsız Odak Modu ve Akıllı Kurallar",
+    premium_feature_2: "Otomatik Dikkat Dağıtıcı Engelleme",
+    premium_feature_3: "Gelişmiş Analizler ve Odak Puanı",
+    premium_weekly: "Haftalık Başlangıç",
+    premium_monthly: "Popüler Paket",
+    premium_yearly: "Yıllık Avantaj",
+    premium_lifetime: "Ömür Boyu Erişim",
+    premium_best_value: "EN ÇOK TERCİH EDİLEN",
+    premium_save_percent: "%{{percent}} Tasarruf Et",
+    premium_cta: "HUSH Premium'a Geç",
+    premium_restore: "Satın Almaları Geri Yükle",
+    premium_terms: "Kullanım Koşulları",
+    premium_privacy: "Gizlilik Politikası",
+    premium_success: "Aramıza Hoş Geldin!",
+    premium_error: "Bir sorun oluştu. Lütfen tekrar dene.",
+    premium_billing_issue: "Ödeme Yöntemini Kontrol Et",
+
+    // Onboarding
+    onboarding_slide1_title: "Daha Az Gürültü",
+    onboarding_slide1_text: "Görmezden geldiklerini susturuyoruz.",
+    onboarding_slide2_title: "Akıllı Öğrenme",
+    onboarding_slide2_text: "HUSH neyin önemli olduğunu öğrenir.",
+    onboarding_slide3_title: "Daima Güvenli",
+    onboarding_slide3_text: "Banka ve OTP bildirimleri asla susturulmaz.",
+    onboarding_next: "İleri",
+    onboarding_enable: "Bildirim Erişimini Aç",
+
+    // Focus Editor
+    focus_edit_title: "Odak Modunu Düzenle",
+    focus_create_title: "Odak Modu Oluştur",
+    focus_name_label: "Mod İsmi",
+    focus_name_placeholder: "örn. Okuma, Spor, Kodlama",
+    focus_icon_label: "İkon Seç",
+    focus_apps_label: "Uygulamaları Seç",
+    focus_apps_help: "Bu mod aktifken SUSTURULACAK uygulamaları seç.",
+    focus_save_btn: "Değişiklikleri Kaydet",
+    focus_create_btn: "Mod Oluştur",
+    focus_error_name: "Lütfen mod için bir isim gir.",
+
+    // Analytics / MVP Polish
+    analytics_activity: "Aktivite",
+    analytics_blocked_caps: "ENGELLENDİ",
+    analytics_active_today: "Bugün aktif engelleme",
+    analytics_quiet_today: "Sakin bir gün",
+    analytics_peak_time: "En çok dikkat dağılması {{time}} civarında oldu",
+    analytics_no_peak: "Henüz büyük bir dikkat dağınıklığı yok",
+    analytics_pure_focus: "Saf Odak",
+    analytics_pure_focus_desc: "Bugün dikkat dağıtan bir şey yok. Harika 👏",
+    analytics_distracted_most: "Bugün seni en çok oyalayan",
+    analytics_activity_pattern: "Aktivite Modeli",
+    analytics_activity_desc: "En çok ne zaman bölündüğünü gör",
+    analytics_premium_feature: "Premium Özellik",
+    analytics_tooltip_blocked: "engellendi",
+    analytics_time_midnight: "gece yarısı",
+    analytics_time_noon: "öğlen",
+    analytics_time_random: "rastgele saatler",
+    analytics_weekly_insight: "Haftalık Analiz",
+    analytics_insight_more: "Geçen haftaya göre %{{percent}} daha fazla engelleme yaptın",
+    analytics_insight_less: "Geçen haftaya göre %{{percent}} daha az engelleme yaptın",
+    analytics_insight_same: "Dikkat seviyen geçen haftayla benzer",
+    analytics_empty_title: "Henüz Veri Yok",
+    analytics_empty_desc: "İçgörüleri görmek için uygulamayı bir gün kullan.",
+
+    // Settings / Feedback
+    settings_feedback: "Geri Bildirim Gönder",
+    settings_feedback_subject: "Hush Geri Bildirim",
+
+    // Managed Apps
+    insights_blocked_by: "\"{{mode}}\" tarafından susturuldu",
+
+    // Premium Success
+    premium_active_badge: "Durum: Aktif",
+    premium_congrats: "Premium Açıldı!",
+    premium_congrats_desc: "Gelişmiş analizlere ve sınırsız odak modlarına artık erişebilirsin.",
+
+    // Home
+    home_waiting: "Engellenen bildirimler burada görünecek."
 };

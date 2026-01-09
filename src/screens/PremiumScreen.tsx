@@ -15,59 +15,31 @@ import { useI18nStore } from '../i18n';
 export const PremiumScreen = () => {
     const navigation = useNavigation();
     const { t } = useI18nStore();
-    const { restorePurchases } = useRevenueCat();
-    // DEV MODE: Ignore premium check to allow dev to see screen
-    // const isPremium = useHushStore(state => state.isPremium);
+    const { restorePurchases, offerings } = useRevenueCat();
+    const isPremium = useHushStore(state => state.isPremium);
 
     const [packages, setPackages] = useState<PurchasesPackage[]>([]);
     const [selectedPackage, setSelectedPackage] = useState<PurchasesPackage | null>(null);
     const [loading, setLoading] = useState(true);
     const [purchasing, setPurchasing] = useState(false);
 
-    // useEffect(() => {
-    //     if (isPremium) {
-    //         navigation.goBack();
-    //     }
-    // }, [isPremium]);
-
     useEffect(() => {
-        const loadOfferings = async () => {
-            try {
-                const offerings = await Purchases.getOfferings();
-                if (offerings.current && offerings.current.availablePackages.length > 0) {
-                    setPackages(offerings.current.availablePackages);
-                    // Default to Yearly if available, else first
-                    const yearly = offerings.current.availablePackages.find(p => p.packageType === 'ANNUAL');
-                    setSelectedPackage(yearly || offerings.current.availablePackages[0]);
-                }
-            } catch (e) {
-                console.error("Error fetching offerings", e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadOfferings();
-    }, []);
+        if (offerings && offerings.availablePackages) {
+            setPackages(offerings.availablePackages);
+            setLoading(false);
+        }
+    }, [offerings]);
 
     const handlePurchase = async () => {
         if (!selectedPackage) return;
 
-        // Prevent crash if user tries to buy a "Mock" package that doesn't exist in Store
-        if (selectedPackage.identifier.startsWith('mock-')) {
-            Alert.alert(
-                t('premium_error'),
-                "Bu paket şu anda mağazada aktif değil (Mağaza yapılandırması eksik). Lütfen Yıllık veya Ömür Boyu paketini deneyin."
-            );
-            return;
-        }
+
 
         setPurchasing(true);
         try {
             const { customerInfo } = await Purchases.purchasePackage(selectedPackage);
-            if (customerInfo.entitlements.active['HUSH_Premium']) {
-                Alert.alert(t('premium_success'));
-                navigation.goBack();
-            }
+            // The store listener in App.tsx or useRevenueCat should update global state isPremium
+            // If strictly needed we might manually set it or wait for listener
         } catch (e: any) {
             if (!e.userCancelled) {
                 Alert.alert(t('premium_error'), e.message);
@@ -77,71 +49,32 @@ export const PremiumScreen = () => {
         }
     };
 
-    // Helper to fallback prices if RC fails (or for specific formatting)
-    // In real prod, we rely purely on package.product.priceString
-    // But per user request to use specific TR prices, we will try to format based on locale
-    // However, we MUST use real packages to buy. We will display the package's price.
-    // Ideally, we configured RevenueCat/StoreKit with the requested prices: 29.99, 79.99, etc.
 
-    const renderPackage = (pkg: PurchasesPackage, bestValue = false) => {
-        const isSelected = selectedPackage?.identifier === pkg.identifier;
 
-        // Manual price mapping for aesthetics override (ALWAYS TL as requested)
-        let displayPrice = pkg.product.priceString;
 
-        switch (pkg.packageType) {
-            case 'WEEKLY': displayPrice = '₺29.99'; break;
-            case 'MONTHLY': displayPrice = '₺79.99'; break;
-            case 'ANNUAL': displayPrice = '₺499.99'; break;
-            case 'LIFETIME': displayPrice = '₺999.99'; break;
-        }
 
+    // Success State
+    if (isPremium && !loading) {
         return (
-            <TouchableOpacity
-                key={pkg.identifier}
-                style={[styles.packageCard, isSelected && styles.packageCardSelected]}
-                onPress={() => setSelectedPackage(pkg)}
-                activeOpacity={0.8}
-            >
-                {bestValue && (
-                    <View style={styles.bestValueBadge}>
-                        <ThemedText style={styles.bestValueText}>{t('premium_best_value')}</ThemedText>
+            <ScreenWrapper center>
+                <View style={{ alignItems: 'center', padding: 32 }}>
+                    <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 24, elevation: 20, shadowColor: colors.primary, shadowRadius: 20 }}>
+                        <Crown size={40} color={colors.background} />
                     </View>
-                )}
-
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <View>
-                        <ThemedText variant="body" style={{ fontWeight: 'bold', color: isSelected ? colors.primary : colors.text.primary }}>
-                            {getPackageTitle(pkg.packageType)}
-                        </ThemedText>
-                        {bestValue && (
-                            <ThemedText variant="caption" style={{ color: colors.status.success, fontSize: 10 }}>
-                                {t('premium_save_percent', { percent: 45 })}
-                            </ThemedText>
-                        )}
-                    </View>
-                    <View style={{ alignItems: 'flex-end' }}>
-                        <ThemedText variant="body" style={{ fontWeight: 'bold' }}>{displayPrice}</ThemedText>
-                        {bestValue && (
-                            <ThemedText variant="caption" style={{ textDecorationLine: 'line-through', color: colors.text.tertiary, fontSize: 10 }}>
-                                ₺999.99
-                            </ThemedText>
-                        )}
-                    </View>
+                    <ThemedText variant="header" center style={{ marginBottom: 8 }}>{t('premium_congrats')}</ThemedText>
+                    <ThemedText variant="body" center color={colors.text.secondary} style={{ marginBottom: 32 }}>
+                        {t('premium_congrats_desc')}
+                    </ThemedText>
+                    <Button
+                        title="Continue"
+                        onPress={() => navigation.goBack()}
+                        variant="primary"
+                        style={{ width: 200 }}
+                    />
                 </View>
-            </TouchableOpacity>
+            </ScreenWrapper>
         );
-    };
-
-    const getPackageTitle = (type: string) => {
-        switch (type) {
-            case 'WEEKLY': return t('premium_weekly');
-            case 'MONTHLY': return t('premium_monthly');
-            case 'ANNUAL': return t('premium_yearly');
-            case 'LIFETIME': return t('premium_lifetime');
-            default: return type;
-        }
-    };
+    }
 
     return (
         <ScreenWrapper style={{ paddingHorizontal: 0 }}>
@@ -172,27 +105,40 @@ export const PremiumScreen = () => {
                     {loading ? (
                         <ActivityIndicator color={colors.primary} size="large" />
                     ) : (
-                        // Force render all 4 types: Weekly, Monthly, Annual, Lifetime
-                        ['WEEKLY', 'MONTHLY', 'ANNUAL', 'LIFETIME'].map((type) => {
-                            // Find real package if it exists
-                            const realPackage = packages.find(p => p.packageType === type);
+                        packages.map((pkg) => {
+                            const isSelected = selectedPackage?.identifier === pkg.identifier;
+                            const isLifetime = pkg.packageType === 'LIFETIME';
 
-                            // Mock package if missing (for visual completeness)
-                            const pkg = realPackage || {
-                                identifier: `mock-${type}`,
-                                packageType: type,
-                                product: {
-                                    price: 0,
-                                    priceString: '',
-                                    currencyCode: 'TRY',
-                                    title: type,
-                                    description: 'Mock',
-                                    identifier: `mock-product-${type}`
-                                }
-                            } as PurchasesPackage;
+                            return (
+                                <TouchableOpacity
+                                    key={pkg.identifier}
+                                    style={[styles.packageCard, isSelected && styles.packageCardSelected]}
+                                    onPress={() => setSelectedPackage(pkg)}
+                                    activeOpacity={0.8}
+                                >
+                                    {isLifetime && (
+                                        <View style={styles.bestValueBadge}>
+                                            <ThemedText style={styles.bestValueText}>{t('premium_best_value')}</ThemedText>
+                                        </View>
+                                    )}
 
-                            const isAnnual = type === 'ANNUAL';
-                            return renderPackage(pkg, isAnnual);
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <View>
+                                            <ThemedText variant="body" style={{ fontWeight: 'bold', color: isSelected ? colors.primary : colors.text.primary }}>
+                                                {pkg.product.title}
+                                            </ThemedText>
+                                            {isLifetime && (
+                                                <ThemedText variant="caption" style={{ color: colors.status.success, fontSize: 10 }}>
+                                                    {t('premium_save_percent', { percent: 45 })}
+                                                </ThemedText>
+                                            )}
+                                        </View>
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <ThemedText variant="body" style={{ fontWeight: 'bold' }}>{pkg.product.priceString}</ThemedText>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            );
                         })
                     )}
                 </View>
@@ -211,7 +157,7 @@ export const PremiumScreen = () => {
             {/* Bottom Bar */}
             <View style={styles.bottomBar}>
                 <Button
-                    title={purchasing ? "Processing..." : t('premium_cta')}
+                    title={purchasing ? t('premium_processing') : t('premium_cta')}
                     onPress={handlePurchase}
                     variant="primary"
                     disabled={purchasing || loading}

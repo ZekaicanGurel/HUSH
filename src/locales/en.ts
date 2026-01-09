@@ -59,6 +59,7 @@ export default {
     settings_notifications: "Notifications",
     settings_restore: "Restore Purchases",
     settings_contact: "Contact Support",
+    settings_privacy: "Privacy Policy",
     settings_version: "Version",
 
     // Premium / Paywall
@@ -80,5 +81,67 @@ export default {
     premium_privacy: "Privacy",
     premium_success: "Welcome to Premium!",
     premium_error: "Purchase failed. Please try again.",
-    premium_billing_issue: "Billing Issue"
+    premium_billing_issue: "Billing Issue",
+
+    // Onboarding
+    onboarding_slide1_title: "Less Noise",
+    onboarding_slide1_text: "We silence what you ignore.",
+    onboarding_slide2_title: "Smart Learning",
+    onboarding_slide2_text: "HUSH learns what matters to you.",
+    onboarding_slide3_title: "Always Safe",
+    onboarding_slide3_text: "Banking and OTP alerts are never muted.",
+    onboarding_next: "Next",
+    onboarding_enable: "Enable Notification Access",
+
+    // Focus Editor
+    focus_edit_title: "Edit Focus Mode",
+    focus_create_title: "Create Focus Mode",
+    focus_name_label: "Mode Name",
+    focus_name_placeholder: "e.g. Reading, Gym, Coding",
+    focus_icon_label: "Select Icon",
+    focus_apps_label: "Select Apps to Block",
+    focus_apps_help: "Select the apps you want to MUTE when this mode is active.",
+    focus_save_btn: "Save Changes",
+    focus_create_btn: "Create Mode",
+    focus_error_name: "Please enter a name for your mode.",
+
+    // Analytics / MVP Polish
+    analytics_activity: "Activity",
+    analytics_blocked_caps: "BLOCKED",
+    analytics_active_today: "Active blocking today",
+    analytics_quiet_today: "Quiet day so far",
+    analytics_peak_time: "Most distractions happened around {{time}}",
+    analytics_no_peak: "No major distractions recorded yet",
+    analytics_pure_focus: "Pure Focus",
+    analytics_pure_focus_desc: "No major distractions today. Nice focus 👏",
+    analytics_distracted_most: "Distracted you most today",
+    analytics_activity_pattern: "Activity Pattern",
+    analytics_activity_desc: "See when you are most distracted",
+    analytics_premium_feature: "Premium Feature",
+    analytics_tooltip_blocked: "blocked",
+    analytics_time_midnight: "midnight",
+    analytics_time_noon: "noon",
+    analytics_time_random: "random times",
+    analytics_weekly_insight: "Weekly Insight",
+    analytics_insight_more: "You blocked {{percent}}% more distractions compared to last week",
+    analytics_insight_less: "You blocked {{percent}}% less distractions compared to last week",
+    analytics_insight_same: "Your distraction levels are stable compared to last week",
+    analytics_empty_title: "No Data Yet",
+    analytics_empty_desc: "Use the app for a day to see insights.",
+
+
+    // Settings / Feedback
+    settings_feedback: "Send Feedback",
+    settings_feedback_subject: "Hush App Feedback",
+
+    // Managed Apps
+    insights_blocked_by: "Muted by \"{{mode}}\"",
+
+    // Premium Success
+    premium_active_badge: "Status: Active",
+    premium_congrats: "Premium Unlocked!",
+    premium_congrats_desc: "You now have access to advanced analytics and unlimited focus modes.",
+
+    // Home
+    home_waiting: "Notifications you block will appear here."
 };

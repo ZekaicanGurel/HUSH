@@ -1,34 +1,32 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { ThemedText } from '../components/ThemedText';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
-import { Bell, Shield, Crown, ChevronRight, Info, RefreshCw, Globe, Trash2 } from 'lucide-react-native';
+import { Info, RefreshCw, Globe, ChevronRight, Bell, Crown, Shield } from 'lucide-react-native';
 import { useHushStore } from '../store/useHushStore';
-import { NativeNotificationService } from '../services/NativeNotificationService';
+import { useNavigation } from '@react-navigation/native';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 import { useI18nStore } from '../i18n';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const SettingsScreen = () => {
-    const isPremium = useHushStore(state => state.isPremium);
-    const activeFocusModeId = useHushStore(state => state.activeFocusModeId);
     const navigation = useNavigation();
-
-    // Auth & I18n
     const { t, language, setLanguage } = useI18nStore();
-
-    // RevenueCat Hook
-    const { showCustomerCenter, restorePurchases } = useRevenueCat();
-
-    const openNotificationSettings = () => {
-        NativeNotificationService.openSettings();
-    };
+    const isPremium = useHushStore(state => state.isPremium);
+    const { restorePurchases } = useRevenueCat();
 
     const toggleLanguage = () => {
         setLanguage(language === 'en' ? 'tr' : 'en');
+    };
+
+    const openNotificationSettings = () => {
+        Linking.openSettings();
+    };
+
+    const handleFeedback = () => {
+        const subject = t('settings_feedback_subject');
+        Linking.openURL(`mailto:support@hushapp.com?subject=${subject}`);
     };
 
     return (
@@ -54,7 +52,7 @@ export const SettingsScreen = () => {
                             <Crown size={24} color={colors.primary} />
                             <View style={{ marginLeft: 16 }}>
                                 <ThemedText variant="title" style={{ color: colors.primary }}>{t('home_hush_premium')}</ThemedText>
-                                <ThemedText variant="caption" style={{ color: colors.text.secondary }}>Active</ThemedText>
+                                <ThemedText variant="caption" style={{ color: colors.text.secondary }}>{t('premium_active_badge')}</ThemedText>
                             </View>
                         </View>
                     </View>
@@ -62,7 +60,7 @@ export const SettingsScreen = () => {
 
                 <View style={styles.section}>
                     <ThemedText variant="caption" color={colors.text.tertiary} style={styles.sectionTitle}>GENERAL</ThemedText>
-
+                    {/* ... Language & Notifs ... */}
                     <TouchableOpacity style={styles.menuItem} onPress={toggleLanguage}>
                         <View style={styles.menuLeft}>
                             <Globe size={20} color={colors.text.primary} style={{ marginRight: 16 }} />
@@ -84,6 +82,14 @@ export const SettingsScreen = () => {
                         </View>
                         <ChevronRight size={20} color={colors.text.secondary} />
                     </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.menuItem} onPress={handleFeedback}>
+                        <View style={styles.menuLeft}>
+                            <View style={{ width: 20, alignItems: 'center', marginRight: 16 }}><Info size={20} color={colors.text.primary} /></View>
+                            <ThemedText variant="body">{t('settings_feedback')}</ThemedText>
+                        </View>
+                        <ChevronRight size={20} color={colors.text.secondary} />
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.section}>
@@ -95,17 +101,19 @@ export const SettingsScreen = () => {
                             <ThemedText variant="body">{t('settings_restore')}</ThemedText>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem}>
-                        <View style={styles.menuLeft}>
-                            <Info size={20} color={colors.text.primary} style={{ marginRight: 16 }} />
-                            <ThemedText variant="body">{t('settings_contact')}</ThemedText>
-                        </View>
-                        <ChevronRight size={20} color={colors.text.secondary} />
-                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.section}>
                     <ThemedText variant="caption" color={colors.text.tertiary} style={styles.sectionTitle}>ABOUT</ThemedText>
+
+                    <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Privacy' as never)}>
+                        <View style={styles.menuLeft}>
+                            <Shield size={20} color={colors.text.primary} style={{ marginRight: 16 }} />
+                            <ThemedText variant="body">{t('settings_privacy')}</ThemedText>
+                        </View>
+                        <ChevronRight size={20} color={colors.text.secondary} />
+                    </TouchableOpacity>
+
                     <View style={styles.menuItem}>
                         <View style={styles.menuLeft}>
                             <Info size={20} color={colors.text.primary} style={{ marginRight: 16 }} />
@@ -118,6 +126,7 @@ export const SettingsScreen = () => {
         </ScreenWrapper>
     );
 };
+
 
 const styles = StyleSheet.create({
     header: {

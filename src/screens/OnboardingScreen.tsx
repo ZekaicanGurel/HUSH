@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, Dimensions, FlatList, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, StyleSheet, Dimensions, FlatList, NativeSyntheticEvent, NativeScrollEvent, Linking, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { ThemedText } from '../components/ThemedText';
 import { Button } from '../components/Button';
@@ -43,13 +45,54 @@ export const OnboardingScreen = ({ navigation }: any) => {
         }
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (currentIndex < SLIDES.length - 1) {
             flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
         } else {
-            // Request permission logic would go here
-            setHasOnboarded(true);
-            navigation.replace('Main');
+            // FINISH ONBOARDING & REQUEST PERMISSION
+            try {
+                const { status: existingStatus } = await Notifications.getPermissionsAsync();
+                let finalStatus = existingStatus;
+
+                // Only ask if not already granted
+                if (existingStatus !== 'granted') {
+                    const { status } = await Notifications.requestPermissionsAsync();
+                    finalStatus = status;
+                }
+
+                if (finalStatus === 'granted') {
+                    console.log('Notification permission granted!');
+                    // Persist Flags
+                    await AsyncStorage.setItem('notificationPermissionAsked', 'true');
+                    await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+
+                    // Update Store
+                    setHasOnboarded(true);
+                    navigation.replace('Main');
+                } else {
+                    // Permission denied, guide user to settings
+                    Alert.alert(
+                        'Permission Required',
+                        'HUSH needs notifications to help you stay focused. Please enable them in settings.',
+                        [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                                text: 'Open Settings',
+                                onPress: () => Linking.openSettings()
+                            }
+                        ]
+                    );
+                    // Do not navigate to Main if permission is denied and alert is shown.
+                    // User stays on onboarding until they grant permission or explicitly cancel.
+                }
+
+            } catch (error) {
+                console.log('Error requesting notification permission:', error);
+                // Fallback: Ensure user still enters app even if permission logic fails
+                await AsyncStorage.setItem('hasSeenOnboarding', 'true');
+                setHasOnboarded(true);
+                navigation.replace('Main');
+            }
         }
     };
 

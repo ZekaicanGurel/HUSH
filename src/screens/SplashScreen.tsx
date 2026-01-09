@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS, withSequence, withDelay } from 'react-native-reanimated';
 import { ThemedText } from '../components/ThemedText';
 import { colors } from '../theme/colors';
@@ -18,12 +19,28 @@ export const SplashScreen = ({ navigation }: any) => {
         opacity.value = withTiming(1, { duration: 1000 });
         scale.value = withTiming(1, { duration: 1000 });
 
-        const timeout = setTimeout(() => {
-            const target = hasOnboarded ? 'Main' : 'Onboarding';
-            navigation.replace(target);
-        }, 2000);
+        const checkOnboarding = async () => {
+            try {
+                // Wait at least 2 seconds for animation
+                const minWait = new Promise(resolve => setTimeout(resolve, 2000));
+                const storageCheck = AsyncStorage.getItem('hasSeenOnboarding');
 
-        return () => clearTimeout(timeout);
+                const [_, value] = await Promise.all([minWait, storageCheck]);
+
+                const target = value === 'true' ? 'Main' : 'Onboarding';
+                navigation.replace(target);
+
+                if (value === 'true') {
+                    // Sync store state just in case
+                    useHushStore.getState().setHasOnboarded(true);
+                }
+            } catch (e) {
+                // Fallback safe
+                navigation.replace('Onboarding');
+            }
+        };
+
+        checkOnboarding();
     }, []);
 
     const animatedStyle = useAnimatedStyle(() => {
