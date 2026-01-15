@@ -24,10 +24,8 @@ export interface FocusMode {
 }
 
 const DEFAULT_FOCUS_MODES: FocusMode[] = [
-    { id: '1', name: 'Study', description: 'Blocks social media', icon: 'BookOpen', blockedAppIds: [] },
-    { id: '2', name: 'Work', description: 'Allow only work apps', icon: 'Briefcase', blockedAppIds: [] },
-    { id: '3', name: 'Sleep', description: 'Mute all except alarm', icon: 'Moon', blockedAppIds: [] },
-    { id: '4', name: 'Deep Focus', description: 'Total silence', icon: 'Zap', blockedAppIds: [] },
+    { id: '1', name: 'Sleep', description: 'Mutes everything', icon: 'Moon', blockedAppIds: [] },
+    { id: '2', name: 'Deep Focus', description: 'Total silence', icon: 'Zap', blockedAppIds: [] },
 ];
 
 // ... (interfaces moved up)
@@ -154,23 +152,37 @@ export const useHushStore = create<HushState>()(
                             return a.name.localeCompare(b.name);
                         });
 
-                        // Update Default Focus Modes with Heuristics if they are empty
-                        let updatedFocusModes = state.focusModes;
-                        // Only run heuristic once or if empty (simplified check)
-                        if (updatedFocusModes[0].blockedAppIds.length === 0) {
-                            const socialApps = newAppsList.filter(a =>
-                                a.id.includes('instagram') || a.id.includes('facebook') || a.id.includes('twitter') ||
-                                a.id.includes('snapchat') || a.id.includes('tiktok') || a.id.includes('social')
-                            ).map(a => a.id);
+                        // Update Default Focus Modes / Migration Logic
+                        let updatedFocusModes: FocusMode[];
+                        const hasOldModes = state.focusModes.some(m => ['3', '4'].includes(m.id) || m.name === 'Study');
 
-                            const gameApps = newAppsList.filter(a => a.id.includes('game') || a.id.includes('play')).map(a => a.id);
+                        if (hasOldModes || state.focusModes.length === 0) {
+                            const allAppIds = newAppsList.map(a => a.id);
 
-                            updatedFocusModes = updatedFocusModes.map(m => {
-                                if (m.name === 'Study') return { ...m, blockedAppIds: [...socialApps, ...gameApps] };
-                                if (m.name === 'Work') return { ...m, blockedAppIds: [...socialApps, ...gameApps] }; // Similar
-                                if (m.name === 'Sleep') return { ...m, blockedAppIds: newAppsList.filter(a => !a.id.includes('clock') && !a.id.includes('alarm')).map(a => a.id) };
-                                return m;
-                            });
+                            const newDefaults: FocusMode[] = [
+                                { id: '1', name: 'Sleep', description: 'Mutes everything', icon: 'Moon', blockedAppIds: allAppIds },
+                                { id: '2', name: 'Deep Focus', description: 'Total silence', icon: 'Zap', blockedAppIds: allAppIds },
+                            ];
+
+                            // Keep any custom user modes (IDs that are not 1, 2, 3, 4)
+                            const customModes = state.focusModes.filter(m => !['1', '2', '3', '4'].includes(m.id));
+
+                            updatedFocusModes = [...newDefaults, ...customModes];
+                        } else {
+                            // If we already have the new defaults (1 and 2 only), 
+                            // we generally don't want to overwrite user customizations to them every time.
+                            // BUT, if the user specifically asked for "default mute all", maybe we should check if they are "empty"?
+                            // For now, the migration above handles the transition. 
+                            // If the user manually unmutes apps in Sleep/DeepFocus later, we respect that.
+                            updatedFocusModes = state.focusModes;
+                        }
+
+                        // Fallback: If for some reason 1 and 2 don't exist, ensure they do logic (redundant but safe)
+                        if (!updatedFocusModes.find(m => m.id === '1')) {
+                            updatedFocusModes.push({ id: '1', name: 'Sleep', description: 'Mutes everything', icon: 'Moon', blockedAppIds: newAppsList.map(a => a.id) });
+                        }
+                        if (!updatedFocusModes.find(m => m.id === '2')) {
+                            updatedFocusModes.push({ id: '2', name: 'Deep Focus', description: 'Total silence', icon: 'Zap', blockedAppIds: newAppsList.map(a => a.id) });
                         }
 
                         return { apps: newAppsList, focusModes: updatedFocusModes };

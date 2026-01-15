@@ -22,7 +22,7 @@ export default {
     home_minutes_saved: "minutes",
     home_minutes_saved_text: "You saved {{minutes}} minutes of distraction.",
     home_recent_activity: "Recent Activity",
-    home_waiting: "Waiting for notifications...",
+
 
     // Insight / Wrapper Screen (Apps)
     insights_header: "Managed Apps",

@@ -19,6 +19,8 @@ export const FocusScreen = () => {
     const activeFocusModeId = useHushStore(state => state.activeFocusModeId);
     const setFocusMode = useHushStore(state => state.setFocusMode);
 
+    const isPremium = useHushStore(state => state.isPremium);
+
     // Bottom Sheet State
     const [selectedMode, setSelectedMode] = React.useState<any>(null);
     const [modalVisible, setModalVisible] = React.useState(false);
@@ -32,7 +34,26 @@ export const FocusScreen = () => {
     };
 
     const handleAddMode = () => {
-        navigation.navigate('FocusEditor' as never);
+        // Filter out default modes to count only custom ones
+        const customModes = focusModes.filter(m => !['1', '2'].includes(m.id));
+
+        if (!isPremium && customModes.length >= 2) {
+            const { Alert } = require('react-native');
+            Alert.alert(
+                "Premium Required",
+                "Free users can only create up to 2 custom focus modes. Upgrade to Premium for unlimited modes.",
+                [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                        text: "Go Premium",
+                        onPress: () => (navigation as any).navigate('Premium')
+                    }
+                ]
+            );
+            return;
+        }
+
+        (navigation as any).navigate('FocusEditor');
     };
 
     const openMenu = (mode: any) => {
@@ -48,13 +69,13 @@ export const FocusScreen = () => {
     const handleEdit = () => {
         if (selectedMode) {
             closeMenu();
-            navigation.navigate('FocusEditor' as never, { mode: selectedMode });
+            (navigation as any).navigate('FocusEditor', { mode: selectedMode });
         }
     };
 
     const handleDelete = () => {
         if (selectedMode) {
-            const isDefault = ['1', '2', '3', '4'].includes(selectedMode.id);
+            const isDefault = ['1', '2'].includes(selectedMode.id);
             if (isDefault) {
                 alert("Default modes cannot be deleted.");
                 return;
