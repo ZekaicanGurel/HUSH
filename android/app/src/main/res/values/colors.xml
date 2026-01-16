@@ -1,6 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <color name="splashscreen_background">#ffffff</color>
   <color name="iconBackground">#ffffff</color>
   <color name="colorPrimary">#023c69</color>
   <color name="colorPrimaryDark">#ffffff</color>
+  
+  <!-- Hush Widget Colors -->
+  <color name="widget_background">#0F172A</color>
+  <color name="widget_surface">#1E293B</color>
+  <color name="widget_primary">#5EEAD4</color>
+  <color name="widget_text">#E5E7EB</color>
+  <color name="widget_text_secondary">#9CA3AF</color>
 </resources>

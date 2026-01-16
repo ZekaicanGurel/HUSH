@@ -125,13 +125,28 @@ export const useRevenueCat = () => {
             console.log("Customer Info Updated. Premium:", isPremium);
         };
 
-        init();
+        // Variable to track listener for cleanup
+        let listenerUnsubscribe: any = null;
 
-        // Listen for real-time updates
-        const listener = Purchases.addCustomerInfoUpdateListener(handleCustomerInfoUpdate);
+        // Initialize and then set up listener
+        init().then(() => {
+            // Only add listener AFTER init is complete (log handler is set)
+            try {
+                listenerUnsubscribe = Purchases.addCustomerInfoUpdateListener(handleCustomerInfoUpdate);
+            } catch (e) {
+                console.warn("Failed to add customer info listener:", e);
+            }
+        });
 
         return () => {
-            // listener.remove(); // Newer RN-Purchases versions return a simplified object/subscription
+            // Clean up listener if it was set
+            if (listenerUnsubscribe && typeof listenerUnsubscribe === 'function') {
+                try {
+                    listenerUnsubscribe();
+                } catch (e) {
+                    // Ignore cleanup errors
+                }
+            }
         };
     }, []);
 
@@ -154,9 +169,14 @@ export const useRevenueCat = () => {
     const showPaywall = useCallback(async () => {
         try {
             // Using the RevenueCat UI Paywall
-            const paywallResult = await RevenueCatUI.presentPaywall({
+            // Ensure we pass a valid options object to prevent native crash from null ReadableMap
+            const paywallOptions = {
                 displayCloseButton: true,
-            });
+                // Add required fields with defaults to prevent null reference in native
+                requiredEntitlementIdentifier: undefined,
+                offering: undefined,
+            };
+            const paywallResult = await RevenueCatUI.presentPaywall(paywallOptions);
 
             // Note: The UI SDK handles the purchase flow internally.
             // We just verify the state after it closes if needed, 
@@ -165,6 +185,7 @@ export const useRevenueCat = () => {
             return paywallResult;
         } catch (e: any) {
             console.log("Paywall Error or Close:", e);
+            // Don't rethrow - gracefully handle paywall errors
         }
     }, []);
 

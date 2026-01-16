@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, FlatList, Switch } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, TextInput, Switch } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { ThemedText } from '../components/ThemedText';
 import { Button } from '../components/Button';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
-import { BookOpen, Briefcase, Moon, Zap, Smile, Heart, Star, Sun, Coffee, Music, X } from 'lucide-react-native';
+import { BookOpen, Briefcase, Moon, Zap, Smile, Heart, Star, Sun, Coffee, Music, X, Search } from 'lucide-react-native';
 import { useHushStore } from '../store/useHushStore';
+import { useI18nStore } from '../i18n';
 
 const ICONS = [
     { name: 'Smile', icon: Smile },
@@ -22,10 +23,28 @@ const ICONS = [
     { name: 'Moon', icon: Moon },
 ];
 
+// Debounce hook for search performance
+const useDebounce = (value: string, delay: number) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    React.useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};
+
 export const FocusEditorScreen = () => {
     const navigation = useNavigation();
-    const route = useRoute(); // Need Route to get params
-    const initialMode = route.params?.mode; // Check if editing
+    const route = useRoute();
+    const initialMode = (route.params as any)?.mode;
+    const { t } = useI18nStore();
 
     const apps = useHushStore(state => state.apps);
     const addFocusMode = useHushStore(state => state.addFocusMode);
@@ -33,7 +52,22 @@ export const FocusEditorScreen = () => {
 
     const [name, setName] = useState(initialMode?.name || '');
     const [selectedIcon, setSelectedIcon] = useState(initialMode?.icon || 'Smile');
-    const [blockedApps, setBlockedApps] = useState<Set<string>>(new Set(initialMode?.blockedAppIds || []));
+    const [blockedApps, setBlockedApps] = useState<Set<string>>(new Set(initialMode?.blockedApps || []));
+
+    // Search state with debouncing
+    const [searchQuery, setSearchQuery] = useState('');
+    const debouncedSearch = useDebounce(searchQuery, 300);
+
+    // Filter apps based on search query (memoized for performance)
+    const filteredApps = useMemo(() => {
+        if (!debouncedSearch.trim()) {
+            return apps;
+        }
+        const query = debouncedSearch.toLowerCase().trim();
+        return apps.filter(app =>
+            app.name.toLowerCase().includes(query)
+        );
+    }, [apps, debouncedSearch]);
 
     const toggleApp = (id: string) => {
         const newSet = new Set(blockedApps);
@@ -47,20 +81,31 @@ export const FocusEditorScreen = () => {
 
     const handleSave = () => {
         if (!name.trim()) {
-            alert('Please enter a name for your mode.');
+            alert(t('focus_error_name'));
             return;
         }
 
         const modeData = {
             name,
-            description: `Custom mode with ${blockedApps.size} blocked apps`,
+            description: t('focus_desc_custom', { count: blockedApps.size }),
             icon: selectedIcon,
-            blockedAppIds: Array.from(blockedApps)
+            // Custom modes use explicit app blocking (not category-based)
+            blockedCategories: [] as ('Social' | 'Entertainment' | 'Games' | 'Productivity' | 'Communication' | 'Education' | 'Finance' | 'Shopping' | 'News' | 'System' | 'Utility' | 'Health' | 'Travel' | 'Other')[],
+            allowedCategories: [] as ('Social' | 'Entertainment' | 'Games' | 'Productivity' | 'Communication' | 'Education' | 'Finance' | 'Shopping' | 'News' | 'System' | 'Utility' | 'Health' | 'Travel' | 'Other')[],
+            blockedApps: Array.from(blockedApps),
+            allowedApps: [] as string[],
         };
 
         if (initialMode) {
-            updateFocusMode({ id: initialMode.id, ...modeData });
+            // Preserve existing flags when updating
+            updateFocusMode({
+                id: initialMode.id,
+                isDefault: initialMode.isDefault ?? false,
+                isCustom: initialMode.isCustom ?? true,
+                ...modeData
+            });
         } else {
+            // New modes are always custom
             addFocusMode(modeData);
         }
 
@@ -73,24 +118,25 @@ export const FocusEditorScreen = () => {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <X size={24} color={colors.text.primary} />
                 </TouchableOpacity>
-                <ThemedText variant="header">{initialMode ? 'Edit Focus Mode' : 'Create Focus Mode'}</ThemedText>
+                <ThemedText variant="header">{initialMode ? t('focus_edit_title') : t('focus_create_title')}</ThemedText>
                 <View style={{ width: 24 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
 
                 {/* Name Input */}
-                <ThemedText variant="title" style={styles.label}>Mode Name</ThemedText>
+                {/* Name Input */}
+                <ThemedText variant="title" style={styles.label}>{t('focus_name_label')}</ThemedText>
                 <TextInput
                     style={styles.input}
                     value={name}
                     onChangeText={setName}
-                    placeholder="e.g. Reading, Gym, Coding"
+                    placeholder={t('focus_name_placeholder')}
                     placeholderTextColor={colors.text.tertiary}
                 />
 
                 {/* Icon Picker */}
-                <ThemedText variant="title" style={styles.label}>Select Icon</ThemedText>
+                <ThemedText variant="title" style={styles.label}>{t('focus_icon_label')}</ThemedText>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconScroll}>
                     {ICONS.map((item) => (
                         <TouchableOpacity
@@ -110,12 +156,31 @@ export const FocusEditorScreen = () => {
                 </ScrollView>
 
                 {/* App Blocker */}
-                <ThemedText variant="title" style={styles.label}>Select Apps to Block</ThemedText>
+                <ThemedText variant="title" style={styles.label}>{t('focus_apps_label')}</ThemedText>
                 <ThemedText variant="caption" color={colors.text.tertiary} style={{ marginBottom: 16 }}>
-                    Select the apps you want to MUTE when this mode is active.
+                    {t('focus_apps_help')}
                 </ThemedText>
 
-                {apps.map(app => (
+                {/* Search Bar */}
+                <View style={styles.searchContainer}>
+                    <Search size={18} color={colors.text.tertiary} style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.searchInput}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        placeholder={t('focus_search_placeholder')}
+                        placeholderTextColor={colors.text.tertiary}
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                    />
+                    {searchQuery.length > 0 && (
+                        <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+                            <X size={16} color={colors.text.tertiary} />
+                        </TouchableOpacity>
+                    )}
+                </View>
+
+                {filteredApps.map(app => (
                     <TouchableOpacity
                         key={app.id}
                         style={styles.appRow}
@@ -131,10 +196,16 @@ export const FocusEditorScreen = () => {
                     </TouchableOpacity>
                 ))}
 
+                {filteredApps.length === 0 && searchQuery.length > 0 && (
+                    <ThemedText variant="body" color={colors.text.tertiary} style={{ textAlign: 'center', marginTop: 24 }}>
+                        {t('focus_apps_no_match', { query: searchQuery })}
+                    </ThemedText>
+                )}
+
             </ScrollView>
 
             <View style={styles.footer}>
-                <Button title={initialMode ? "Save Changes" : "Create Mode"} onPress={handleSave} variant="primary" style={{ width: '100%' }} />
+                <Button title={initialMode ? t('focus_save_btn') : t('focus_create_btn')} onPress={handleSave} variant="primary" style={{ width: '100%' }} />
             </View>
         </ScreenWrapper>
     );
@@ -199,5 +270,28 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background,
         borderTopWidth: 1,
         borderTopColor: colors.border,
-    }
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.surface,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    searchIcon: {
+        marginRight: 12,
+    },
+    searchInput: {
+        flex: 1,
+        color: colors.text.primary,
+        fontSize: 16,
+        padding: 0,
+    },
+    clearButton: {
+        padding: 4,
+    },
 });

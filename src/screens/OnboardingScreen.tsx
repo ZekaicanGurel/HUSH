@@ -9,31 +9,34 @@ import { colors } from '../theme/colors';
 import { Bell, Brain, Shield } from 'lucide-react-native';
 import { layout } from '../theme/layout';
 import { useHushStore } from '../store/useHushStore';
+import { useI18nStore } from '../i18n';
 
 const { width } = Dimensions.get('window');
 
-const SLIDES = [
-    {
-        id: 1,
-        icon: Bell,
-        title: 'Less Noise',
-        text: 'We silence what you ignore.',
-    },
-    {
-        id: 2,
-        icon: Brain,
-        title: 'Smart Learning',
-        text: 'HUSH learns what matters to you.',
-    },
-    {
-        id: 3,
-        icon: Shield,
-        title: 'Always Safe',
-        text: 'Banking and OTP alerts are never muted.',
-    },
-];
-
 export const OnboardingScreen = ({ navigation }: any) => {
+    const { t } = useI18nStore();
+
+    const SLIDES = [
+        {
+            id: 1,
+            icon: Bell,
+            title: t('onboarding_slide1_title'),
+            text: t('onboarding_slide1_text'),
+        },
+        {
+            id: 2,
+            icon: Brain,
+            title: t('onboarding_slide2_title'),
+            text: t('onboarding_slide2_text'),
+        },
+        {
+            id: 3,
+            icon: Shield,
+            title: t('onboarding_slide3_title'),
+            text: t('onboarding_slide3_text'),
+        },
+    ];
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const flatListRef = useRef<FlatList>(null);
     const setHasOnboarded = useHushStore(state => state.setHasOnboarded);
@@ -141,7 +144,7 @@ export const OnboardingScreen = ({ navigation }: any) => {
                     </View>
 
                     <Button
-                        title={currentIndex === SLIDES.length - 1 ? "Enable Notification Access" : "Next"}
+                        title={currentIndex === SLIDES.length - 1 ? t('onboarding_enable') : t('onboarding_next')}
                         onPress={handleNext}
                         style={{ width: '100%' }}
                     />

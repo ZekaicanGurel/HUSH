@@ -3,11 +3,36 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { ThemedText } from '../components/ThemedText';
 import { colors } from '../theme/colors';
-import { X } from 'lucide-react-native';
+import { X, Trash2 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useHushStore } from '../store/useHushStore';
+import { Alert } from 'react-native';
 
 export const PrivacyScreen = () => {
     const navigation = useNavigation();
+    const resetAllData = useHushStore(state => state.resetAllData);
+
+    const handleDeleteData = () => {
+        Alert.alert(
+            "Delete All Data?",
+            "This action cannot be undone. All your stats, schedules, and preferences will be permanently removed.",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Delete Data",
+                    style: "destructive",
+                    onPress: async () => {
+                        await resetAllData();
+                        Alert.alert("Data Deleted", "App has been reset.");
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Splash' }],
+                        });
+                    }
+                }
+            ]
+        );
+    };
 
     return (
         <ScreenWrapper style={{ paddingHorizontal: 0 }}>
@@ -72,6 +97,20 @@ export const PrivacyScreen = () => {
                     <ThemedText variant="body" color={colors.text.secondary}>
                         Email: support@hushapp.com
                     </ThemedText>
+                </Section>
+
+                <Section title="Data Management">
+                    <ThemedText variant="body" color={colors.text.secondary} style={{ marginBottom: 16 }}>
+                        You have full control over your data. Deleting data will reset the app to its initial state, clearing all logs and schedules.
+                    </ThemedText>
+
+                    <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={handleDeleteData}
+                    >
+                        <Trash2 size={20} color={colors.status.error} style={{ marginRight: 8 }} />
+                        <ThemedText style={{ color: colors.status.error, fontWeight: 'bold' }}>Delete All Data</ThemedText>
+                    </TouchableOpacity>
                 </Section>
 
                 <View style={{ height: 40 }} />
@@ -146,4 +185,14 @@ const styles = StyleSheet.create({
         flex: 1,
         lineHeight: 22,
     },
+    deleteButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        backgroundColor: colors.surfaceHighlight,
+        borderRadius: 12,
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(251, 113, 133, 0.2)',
+    }
 });

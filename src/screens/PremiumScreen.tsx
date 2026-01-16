@@ -56,8 +56,8 @@ export const PremiumScreen = () => {
     // Success State
     if (isPremium && !loading) {
         return (
-            <ScreenWrapper center>
-                <View style={{ alignItems: 'center', padding: 32 }}>
+            <ScreenWrapper>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
                     <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 24, elevation: 20, shadowColor: colors.primary, shadowRadius: 20 }}>
                         <Crown size={40} color={colors.background} />
                     </View>
@@ -95,9 +95,26 @@ export const PremiumScreen = () => {
 
                 {/* Features */}
                 <View style={styles.features}>
-                    <FeatureItem icon={Shield} text={t('premium_feature_1')} />
-                    <FeatureItem icon={Zap} text={t('premium_feature_2')} />
-                    <FeatureItem icon={TrendingUp} text={t('premium_feature_3')} />
+                    <FeatureItem
+                        icon={Shield}
+                        text={t('premium_feature_1_title')}
+                        subtext={t('premium_feature_1_desc')}
+                    />
+                    <FeatureItem
+                        icon={Zap}
+                        text={t('premium_feature_2_title')}
+                        subtext={t('premium_feature_2_desc')}
+                    />
+                    <FeatureItem
+                        icon={TrendingUp}
+                        text={t('premium_feature_3_title')}
+                        subtext={t('premium_feature_3_desc')}
+                    />
+                    <FeatureItem
+                        icon={Crown}
+                        text={t('premium_feature_4_title')}
+                        subtext={t('premium_feature_4_desc')}
+                    />
                 </View>
 
                 {/* Packages */}
@@ -171,12 +188,15 @@ export const PremiumScreen = () => {
     );
 };
 
-const FeatureItem = ({ icon: Icon, text }: any) => (
+const FeatureItem = ({ icon: Icon, text, subtext }: any) => (
     <View style={styles.featureItem}>
         <View style={styles.checkCircle}>
             <Check size={14} color={colors.background} />
         </View>
-        <ThemedText variant="body" style={{ marginLeft: 12, fontWeight: '500' }}>{text}</ThemedText>
+        <View style={{ marginLeft: 16, flex: 1 }}>
+            <ThemedText variant="body" style={{ fontWeight: '600', marginBottom: 2 }}>{text}</ThemedText>
+            <ThemedText variant="caption" color={colors.text.secondary} style={{ lineHeight: 18 }}>{subtext}</ThemedText>
+        </View>
     </View>
 );
 
@@ -195,13 +215,13 @@ const styles = StyleSheet.create({
         marginBottom: 32,
     },
     features: {
-        paddingHorizontal: 40,
-        marginBottom: 40,
+        paddingHorizontal: 24,
+        marginBottom: 32,
     },
     featureItem: {
         flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
+        alignItems: 'flex-start',
+        marginBottom: 20,
     },
     checkCircle: {
         width: 24,
@@ -210,6 +230,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
         justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 2,
     },
     packagesContainer: {
         paddingHorizontal: 24,

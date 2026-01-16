@@ -30,6 +30,9 @@ export default {
     insights_mute: "Sustur",
     insights_unmute: "Aç",
     insights_safe: "Güvenli",
+    insights_blocked_today: "Bugün {{count}} kez engellendi",
+    insights_status_focus: "Odak",
+    insights_no_apps: "Uygulama yok",
 
     // Analytics Screen (Graphs)
     analytics_header: "İçgörüler",
@@ -64,18 +67,24 @@ export default {
 
     // Premium / Paywall
     premium_header: "Premium'a Yükselt",
-    premium_title: "Potansiyelini Açığa Çıkar",
-    premium_subtitle: "Odaklanmak her şeyi engellemek değil, yönetmektir. HUSH Premium ile zihnini özgürleştir.",
-    premium_feature_1: "Sınırsız Odak Modu ve Akıllı Kurallar",
-    premium_feature_2: "Otomatik Dikkat Dağıtıcı Engelleme",
-    premium_feature_3: "Gelişmiş Analizler ve Odak Puanı",
+    premium_title: "Potansiyelini Zirveye Taşı",
+    premium_subtitle: "En değerli varlığına, yani zamanına yatırım yap. HUSH Premium ile odağının sınırlarını kaldır.",
+    premium_feature_1_title: "Sınırsız Savunma Hattı",
+    premium_feature_1_desc: "İş, Spor, Okuma ve Derin Odaklanma için sınırsız mod oluştur.",
+    premium_feature_2_title: "Derinlemesine Analiz",
+    premium_feature_2_desc: "Verimliliğini görselleştir. Seni neyin, ne zaman böldüğünü tam olarak gör.",
+    premium_feature_3_title: "Yapay Zeka Otomasyonu",
+    premium_feature_3_desc: "Bırak HUSH, senin ritmine göre odak seanslarını otomatik planlasın.",
+    premium_feature_4_title: "Akıllı Zamanlama",
+    premium_feature_4_desc: "Kur ve unut. HUSH zamanını otomatik korur.",
     premium_weekly: "Haftalık Başlangıç",
     premium_monthly: "Popüler Paket",
     premium_yearly: "Yıllık Avantaj",
     premium_lifetime: "Ömür Boyu Erişim",
     premium_best_value: "EN ÇOK TERCİH EDİLEN",
     premium_save_percent: "%{{percent}} Tasarruf Et",
-    premium_cta: "HUSH Premium'a Geç",
+    premium_cta: "Odak Yolculuğuna Başla",
+    premium_processing: "İşleniyor...",
     premium_restore: "Satın Almaları Geri Yükle",
     premium_terms: "Kullanım Koşulları",
     premium_privacy: "Gizlilik Politikası",
@@ -84,12 +93,12 @@ export default {
     premium_billing_issue: "Ödeme Yöntemini Kontrol Et",
 
     // Onboarding
-    onboarding_slide1_title: "Daha Az Gürültü",
-    onboarding_slide1_text: "Görmezden geldiklerini susturuyoruz.",
-    onboarding_slide2_title: "Akıllı Öğrenme",
-    onboarding_slide2_text: "HUSH neyin önemli olduğunu öğrenir.",
-    onboarding_slide3_title: "Daima Güvenli",
-    onboarding_slide3_text: "Banka ve OTP bildirimleri asla susturulmaz.",
+    onboarding_slide1_title: "Dikkatini Geri Kazan",
+    onboarding_slide1_text: "Sürekli gelen bildirimlerin arasında kaybolma. HUSH senin kişisel kalkanın. Gürültüyü sustur, odağını artır.",
+    onboarding_slide2_title: "Sana Ayak Uyduran Zeka",
+    onboarding_slide2_text: "HUSH alışkanlıklarını öğrenir. Ne zaman çalıştığını, uyuduğunu veya dinlendiğini anlar ve bildirimleri buna göre filtreler.",
+    onboarding_slide3_title: "İçin Rahat Olsun",
+    onboarding_slide3_text: "Önemli olanı asla kaçırma. Acil aramalar, banka uyarıları ve favori kişiler her zaman ulaşır. Tam kontrol, sıfır endişe.",
     onboarding_next: "İleri",
     onboarding_enable: "Bildirim Erişimini Aç",
 
@@ -101,9 +110,22 @@ export default {
     focus_icon_label: "İkon Seç",
     focus_apps_label: "Uygulamaları Seç",
     focus_apps_help: "Bu mod aktifken SUSTURULACAK uygulamaları seç.",
+    focus_search_placeholder: "Uygulama ara…",
     focus_save_btn: "Değişiklikleri Kaydet",
     focus_create_btn: "Mod Oluştur",
     focus_error_name: "Lütfen mod için bir isim gir.",
+    focus_desc_custom: "{{count}} engellenmiş uygulama ile özel mod",
+    focus_apps_no_match: "\"{{query}}\" ile eşleşen uygulama yok",
+    focus_no_apps_found: "Uygulama bulunamadı",
+
+    // SmartAppList Categories
+    cat_social: "Sosyal",
+    cat_system: "Sistem",
+    cat_finance: "Finans",
+    cat_work: "İş",
+    cat_other: "Diğer",
+    app_play_store: "Play Store",
+    app_count_suffix: "uygulama",
 
     // Analytics / MVP Polish
     analytics_activity: "Aktivite",
@@ -142,5 +164,49 @@ export default {
     premium_congrats_desc: "Gelişmiş analizlere ve sınırsız odak modlarına artık erişebilirsin.",
 
     // Home
-    home_waiting: "Engellenen bildirimler burada görünecek."
+    home_waiting: "Engellenen bildirimler burada görünecek.",
+
+    // Focus Intelligence
+    focus_intel_protected: "Odağını {{count}} kez korudun",
+    focus_intel_protected_week: "Bu hafta {{count}} dikkat dağıtıcı engellendi",
+    focus_intel_focus_time: "{{time}} odaklanma zamanı kazandın",
+    focus_intel_top_distractor: "{{app}} seni {{count}} kez rahatsız etmeye çalıştı",
+    focus_intel_mode_power: "{{mode}} bu hafta seni {{count}} kez korudu",
+    focus_intel_suggestion_time: "Genellikle {{time}}'da {{mode}} modunu açıyorsun",
+    focus_intel_suggestion_app: "{{app}} dikkat dağıtıcıların %{{percent}}'ini oluşturuyor",
+    focus_intel_automate: "Otomatik aktive edeyim mi?",
+    focus_intel_auto_block: "Focus'ta otomatik engelle?",
+    focus_intel_great_start: "Güzel başlangıç! Odağını koruyorsun.",
+    focus_intel_amazing: "Harika! Odağın çelik gibi güçlü.",
+    focus_intel_legend: "Efsane! Tam bir odak şampiyonusun!",
+
+    // Smart Suggestions & Settings
+    settings_smart_features: "AKILLI ÖZELLİKLER",
+    settings_smart_suggestions: "Akıllı Öneriler",
+    settings_smart_suggestions_desc: "Yapay zeka tavsiyeleri",
+
+    // Schedules
+    sched_title: "Otomatik Planlayıcı",
+    sched_new: "Yeni Plan",
+    sched_edit: "Planı Düzenle",
+    sched_mode_label: "Odak Modu",
+    sched_start_label: "Başlangıç Saati",
+    sched_end_label: "Bitiş Saati",
+    sched_days_label: "Tekrar Günleri",
+    sched_invalid_time: "Geçersiz Saat",
+    sched_invalid_time_msg: "Lütfen SS:dd formatı kullanın (örn. 09:00)",
+    sched_empty: "Henüz plan yok",
+    sched_empty_desc: "Odak zamanını otomatikleştirmek için plan oluştur.",
+    sched_premium_gate: "Premium Gerekli",
+
+    // AI Suggestions (Dynamic)
+    suggestion_automate_title: "{{mode}} modunu otomatikleştir",
+    suggestion_automate_desc: "Genellikle {{time}}'da {{mode}} modunu açıyorsun.",
+    suggestion_automate_action: "Zamanla",
+    suggestion_block_title: "{{app}} dikkatini dağıtıyor",
+    suggestion_block_desc: "{{app}}, dikkat dağınıklığının %{{percent}}'ini oluşturuyor.",
+    suggestion_block_action: "Otomatik Engelle",
+    suggestion_dopamine_title: "{{mode}} modunu özledin mi?",
+    suggestion_dopamine_desc: "Bu hafta en etkili modun.",
+    suggestion_dopamine_action: "Aktifleştir"
 };

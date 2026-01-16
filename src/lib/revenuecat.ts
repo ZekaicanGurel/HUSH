@@ -15,18 +15,31 @@ const API_KEYS = {
 export const ENTITLEMENT_ID = 'HUSH Premium';
 
 export const initRevenueCat = async () => {
-    if (Platform.OS === 'android') {
-        Purchases.configure({ apiKey: API_KEYS.android });
-    } else {
-        Purchases.configure({ apiKey: API_KEYS.ios });
-    }
+    try {
+        // CRITICAL: Set log handler BEFORE configure() to fix "customLogHandler is not a function" error
+        // This is a workaround for a known react-native-purchases issue
+        Purchases.setLogHandler((logLevel, message) => {
+            if (__DEV__) {
+                console.log(`[RevenueCat] ${message}`);
+            }
+        });
 
-    if (__DEV__) {
-        Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-    }
+        // Set log level based on environment
+        if (__DEV__) {
+            Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+        } else {
+            Purchases.setLogLevel(LOG_LEVEL.ERROR);
+        }
 
-    // Identify user if you have a user system, otherwise anonymous
-    // await Purchases.logIn(userId); 
+        // Configure the SDK
+        if (Platform.OS === 'android') {
+            Purchases.configure({ apiKey: API_KEYS.android });
+        } else {
+            Purchases.configure({ apiKey: API_KEYS.ios });
+        }
+    } catch (e) {
+        console.warn('[RevenueCat] Init error:', e);
+    }
 };
 
 export const checkPremiumEntitlement = (customerInfo: CustomerInfo): boolean => {

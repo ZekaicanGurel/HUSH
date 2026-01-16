@@ -12,15 +12,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { useI18nStore } from '../i18n';
 
 // Enable LayoutAnimation for Android
+import { useNavigation } from '@react-navigation/native';
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+import { useFocusSuggestions } from '../hooks/useFocusSuggestions';
+
 export const HomeScreen = () => {
+    const navigation = useNavigation();
     const stats = useHushStore(state => state.stats);
-    const logs = useHushStore(state => state.logs);
-    const suggestions = useHushStore(state => state.suggestions);
-    const generateSuggestions = useHushStore(state => state.generateSuggestions);
+    const logs = useHushStore(state => state.logs || []);
     const dismissSuggestion = useHushStore(state => state.dismissSuggestion);
     const toggleAppMute = useHushStore(state => state.toggleAppMute);
     const activeFocusModeId = useHushStore(state => state.activeFocusModeId);
@@ -29,14 +31,14 @@ export const HomeScreen = () => {
     const { t } = useI18nStore();
     const [hasPermission, setHasPermission] = React.useState(false);
 
+    // AI Suggestions (New Hook)
+    const suggestions = useFocusSuggestions();
+
     useEffect(() => {
         // Initialize Native Service
         NativeNotificationService.init();
         checkPerms();
-
-        // AI: Generate suggestions based on recent logs
-        generateSuggestions();
-    }, [logs.length]); // Re-run when logs change
+    }, []);
 
     const checkPerms = async () => {
         const granted = await NativeNotificationService.checkPermission();
@@ -50,19 +52,25 @@ export const HomeScreen = () => {
     const handleSuggestionAction = (suggestion: any, accept: boolean) => {
         if (accept) {
             // Execute Action
-            if (suggestion.type === 'mute_app' && suggestion.data?.appId) {
-                toggleAppMute(suggestion.data.appId);
-            } else if (suggestion.type === 'activate_mode' && suggestion.data?.modeId) {
+            if (suggestion.type === 'app_block' && suggestion.data?.packageName) {
+                toggleAppMute(suggestion.data.packageName);
+            } else if (suggestion.type === 'mode_recommendation' && suggestion.data?.modeId) {
                 const setFocusMode = useHushStore.getState().setFocusMode;
                 setFocusMode(suggestion.data.modeId);
+            } else if (suggestion.type === 'schedule') {
+                (navigation as any).navigate('Schedules', {
+                    create: true,
+                    modeId: suggestion.data?.modeId,
+                    time: suggestion.data?.time
+                });
             }
         }
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         dismissSuggestion(suggestion.id);
     };
 
-    // Filter out dismissed
-    const activeSuggestions = suggestions.filter(s => !s.isDismissed);
+    // Filter out dismissed (Hook already filters, just allow pass-through)
+    const activeSuggestions = suggestions;
 
     return (
         <ScreenWrapper>

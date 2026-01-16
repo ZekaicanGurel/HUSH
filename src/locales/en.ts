@@ -30,6 +30,9 @@ export default {
     insights_mute: "Mute",
     insights_unmute: "Unmute",
     insights_safe: "Safe",
+    insights_blocked_today: "Blocked {{count}} today",
+    insights_status_focus: "Focus",
+    insights_no_apps: "No apps available",
 
     // Analytics Screen (Graphs)
     analytics_header: "Insights",
@@ -64,18 +67,24 @@ export default {
 
     // Premium / Paywall
     premium_header: "Upgrade to Premium",
-    premium_title: "Master Your Focus",
-    premium_subtitle: "Unlock detailed analytics, unlimited mute rules, and smart insights.",
-    premium_feature_1: "Less distractions",
-    premium_feature_2: "Better focus",
-    premium_feature_3: "Smart notification control",
+    premium_title: "Unlock Your Full Potential",
+    premium_subtitle: "Invest in your most valuable asset: your time. Go Premium for the ultimate focus experience.",
+    premium_feature_1_title: "Unlimited Defenses",
+    premium_feature_1_desc: "Create unlimited focus modes for Work, Gym, Reading, and Deep Work.",
+    premium_feature_2_title: "Deep Analytics",
+    premium_feature_2_desc: "Visualize your productivity. See exactly what distracts you and when.",
+    premium_feature_3_title: "AI Automation",
+    premium_feature_3_desc: "Let HUSH auto-schedule your focus sessions based on your unique rhythm.",
+    premium_feature_4_title: "Smart Schedules",
+    premium_feature_4_desc: "Set it and forget it. HUSH protects your time automatically.",
     premium_weekly: "Weekly",
     premium_monthly: "Monthly",
     premium_yearly: "Yearly",
     premium_lifetime: "Lifetime",
     premium_best_value: "BEST VALUE",
     premium_save_percent: "Save {{percent}}%",
-    premium_cta: "Start Premium",
+    premium_cta: "Start Your Focus Journey",
+    premium_processing: "Processing...",
     premium_restore: "Restore Purchases",
     premium_terms: "Terms",
     premium_privacy: "Privacy",
@@ -84,12 +93,12 @@ export default {
     premium_billing_issue: "Billing Issue",
 
     // Onboarding
-    onboarding_slide1_title: "Less Noise",
-    onboarding_slide1_text: "We silence what you ignore.",
-    onboarding_slide2_title: "Smart Learning",
-    onboarding_slide2_text: "HUSH learns what matters to you.",
-    onboarding_slide3_title: "Always Safe",
-    onboarding_slide3_text: "Banking and OTP alerts are never muted.",
+    onboarding_slide1_title: "Reclaim Your Attention",
+    onboarding_slide1_text: "In a world of constant pings, HUSH is your personal shield. Silence the noise, amplify your focus.",
+    onboarding_slide2_title: "Intelligence That Adapts",
+    onboarding_slide2_text: "HUSH learns your habits. It knows when you're working, sleeping, or chilling, and filters notifications accordingly.",
+    onboarding_slide3_title: "Peace of Mind, Guaranteed",
+    onboarding_slide3_text: "Never miss what matters. Urgent calls, bank alerts, and favorite contacts always get through. Total control, zero anxiety.",
     onboarding_next: "Next",
     onboarding_enable: "Enable Notification Access",
 
@@ -101,9 +110,22 @@ export default {
     focus_icon_label: "Select Icon",
     focus_apps_label: "Select Apps to Block",
     focus_apps_help: "Select the apps you want to MUTE when this mode is active.",
+    focus_search_placeholder: "Search apps...",
     focus_save_btn: "Save Changes",
     focus_create_btn: "Create Mode",
     focus_error_name: "Please enter a name for your mode.",
+    focus_desc_custom: "Custom mode with {{count}} blocked apps",
+    focus_apps_no_match: "No apps matching \"{{query}}\"",
+    focus_no_apps_found: "No apps found",
+
+    // SmartAppList Categories
+    cat_social: "Social",
+    cat_system: "System Important",
+    cat_finance: "Finance",
+    cat_work: "Work",
+    cat_other: "Other",
+    app_play_store: "Play Store",
+    app_count_suffix: "apps",
 
     // Analytics / MVP Polish
     analytics_activity: "Activity",
@@ -143,5 +165,49 @@ export default {
     premium_congrats_desc: "You now have access to advanced analytics and unlimited focus modes.",
 
     // Home
-    home_waiting: "Notifications you block will appear here."
+    home_waiting: "Notifications you block will appear here.",
+
+    // Focus Intelligence
+    focus_intel_protected: "You protected your focus {{count}} times",
+    focus_intel_protected_week: "{{count}} distractions blocked this week",
+    focus_intel_focus_time: "{{time}} of focused time gained",
+    focus_intel_top_distractor: "{{app}} tried to distract you {{count}} times",
+    focus_intel_mode_power: "{{mode}} protected you {{count}} times this week",
+    focus_intel_suggestion_time: "You usually activate {{mode}} at {{time}}",
+    focus_intel_suggestion_app: "{{app}} caused {{percent}}% of your interruptions",
+    focus_intel_automate: "Want me to automate it?",
+    focus_intel_auto_block: "Auto-block in Focus?",
+    focus_intel_great_start: "Great start! You're protecting your focus.",
+    focus_intel_amazing: "Amazing! Your focus is rock solid.",
+    focus_intel_legend: "Legendary! You're a focus champion!",
+
+    // Smart Suggestions & Settings
+    settings_smart_features: "SMART FEATURES",
+    settings_smart_suggestions: "Smart Suggestions",
+    settings_smart_suggestions_desc: "AI recommendations",
+
+    // Schedules
+    sched_title: "Schedules",
+    sched_new: "New Schedule",
+    sched_edit: "Edit Schedule",
+    sched_mode_label: "Focus Mode",
+    sched_start_label: "Start Time",
+    sched_end_label: "End Time",
+    sched_days_label: "Repeat On",
+    sched_invalid_time: "Invalid Time",
+    sched_invalid_time_msg: "Please use HH:mm format (e.g. 09:00)",
+    sched_empty: "No schedules yet",
+    sched_empty_desc: "Automate your focus time by creating a schedule.",
+    sched_premium_gate: "Premium Required",
+
+    // AI Suggestions (Dynamic)
+    suggestion_automate_title: "Automate {{mode}}",
+    suggestion_automate_desc: "You usually activate {{mode}} at {{time}}.",
+    suggestion_automate_action: "Schedule",
+    suggestion_block_title: "{{app}} is distracting you",
+    suggestion_block_desc: "{{app}} accounts for {{percent}}% of distractions.",
+    suggestion_block_action: "Auto Block",
+    suggestion_dopamine_title: "Miss {{mode}}?",
+    suggestion_dopamine_desc: "Your most effective mode this week.",
+    suggestion_dopamine_action: "Activate"
 };

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { useHushStore } from '../store/useHushStore';
+import { useFocusStats, formatFocusTime } from '../hooks/useFocusStats';
 import { format, subDays, isSameDay, startOfDay, getDay, getHours } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
@@ -21,12 +22,15 @@ const { width } = Dimensions.get('window');
 const CARD_WIDTH = width - 48;
 
 export const AnalyticsScreen = () => {
-    const apps = useHushStore(state => state.apps);
-    const logs = useHushStore(state => state.logs);
+    const apps = useHushStore(state => state.apps || []);
+    const logs = useHushStore(state => state.logs || []);
     const isPremium = useHushStore(state => state.isPremium);
     const navigation = useNavigation();
     const { t } = useI18nStore();
     const [tooltip, setTooltip] = useState<{ day: string, hour: string, count: number, x: number, y: number } | null>(null);
+
+    // Focus Intelligence
+    const focusStats = useFocusStats();
 
     // --- DATA CALCULATIONS ---
 
@@ -267,6 +271,77 @@ export const AnalyticsScreen = () => {
                             <ThemedText variant="header">{t('analytics_header')}</ThemedText>
                             <ThemedText variant="caption" color={colors.text.tertiary}>{t('analytics_subtitle')}</ThemedText>
                         </View>
+
+                        {/* === FOCUS INTELLIGENCE: TODAY'S SUMMARY === */}
+                        <Card style={styles.chartCard}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                                <View style={{ padding: 10, backgroundColor: 'rgba(94, 234, 212, 0.1)', borderRadius: 14, marginRight: 14 }}>
+                                    <Shield size={22} color={colors.primary} />
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <ThemedText variant="title" style={{ fontSize: 16 }}>Today's Focus</ThemedText>
+                                    <ThemedText variant="caption" color={colors.text.tertiary}>Your protection stats</ThemedText>
+                                </View>
+                            </View>
+
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <View style={{ flex: 1 }}>
+                                    <ThemedText style={{ fontSize: 32, fontWeight: '700', color: colors.primary }}>
+                                        {focusStats.todayBlockedCount}
+                                    </ThemedText>
+                                    <ThemedText variant="caption" color={colors.text.secondary}>distractions blocked</ThemedText>
+                                </View>
+                                <View style={{ width: 1, backgroundColor: 'rgba(255,255,255,0.05)', marginHorizontal: 16 }} />
+                                <View style={{ flex: 1 }}>
+                                    <ThemedText style={{ fontSize: 32, fontWeight: '700', color: colors.accent }}>
+                                        {formatFocusTime(focusStats.todayFocusMinutes)}
+                                    </ThemedText>
+                                    <ThemedText variant="caption" color={colors.text.secondary}>focused time</ThemedText>
+                                </View>
+                            </View>
+                        </Card>
+
+                        {/* === FOCUS INTELLIGENCE: THIS WEEK (Premium) === */}
+                        {isPremium && (
+                            <Card style={styles.chartCard}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                                    <View style={{ padding: 10, backgroundColor: 'rgba(251, 191, 36, 0.1)', borderRadius: 14, marginRight: 14 }}>
+                                        <Zap size={22} color={colors.accent} />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText variant="title" style={{ fontSize: 16 }}>This Week</ThemedText>
+                                        <ThemedText variant="caption" color={colors.text.tertiary}>Your weekly progress</ThemedText>
+                                    </View>
+                                </View>
+
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText style={{ fontSize: 28, fontWeight: '700', color: colors.text.primary }}>
+                                            {focusStats.weekBlockedCount}
+                                        </ThemedText>
+                                        <ThemedText variant="caption" color={colors.text.secondary}>total blocked</ThemedText>
+                                    </View>
+                                    <View style={{ width: 1, backgroundColor: 'rgba(255,255,255,0.05)', marginHorizontal: 16 }} />
+                                    <View style={{ flex: 1 }}>
+                                        <ThemedText style={{ fontSize: 28, fontWeight: '700', color: colors.text.primary }}>
+                                            {formatFocusTime(focusStats.weekFocusMinutes)}
+                                        </ThemedText>
+                                        <ThemedText variant="caption" color={colors.text.secondary}>total focus time</ThemedText>
+                                    </View>
+                                </View>
+
+                                {focusStats.mostUsedMode && (
+                                    <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.05)' }}>
+                                        <ThemedText variant="caption" color={colors.text.tertiary} style={{ marginBottom: 6 }}>
+                                            Most effective mode
+                                        </ThemedText>
+                                        <ThemedText variant="body" style={{ fontWeight: '600', color: colors.primary }}>
+                                            {focusStats.mostUsedMode.modeName} · {focusStats.mostUsedMode.count}x this week
+                                        </ThemedText>
+                                    </View>
+                                )}
+                            </Card>
+                        )}
 
                         {/* --- WEEKLY INSIGHT (NEW MVP ELEMENT) --- */}
                         <Card style={[styles.chartCard, { paddingVertical: 16 }]}>

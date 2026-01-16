@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking, Switch } from 'react-native';
 import { ScreenWrapper } from '../components/ScreenWrapper';
 import { ThemedText } from '../components/ThemedText';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
-import { Info, RefreshCw, Globe, ChevronRight, Bell, Crown, Shield } from 'lucide-react-native';
+import { Info, RefreshCw, Globe, ChevronRight, Bell, Crown, Shield, Brain } from 'lucide-react-native';
 import { useHushStore } from '../store/useHushStore';
 import { useNavigation } from '@react-navigation/native';
 import { useRevenueCat } from '../hooks/useRevenueCat';
@@ -14,6 +14,8 @@ export const SettingsScreen = () => {
     const navigation = useNavigation();
     const { t, language, setLanguage } = useI18nStore();
     const isPremium = useHushStore(state => state.isPremium);
+    const smartSuggestionsEnabled = useHushStore(state => state.smartSuggestionsEnabled ?? true);
+    const toggleSmartSuggestions = useHushStore(state => state.toggleSmartSuggestions);
     const { restorePurchases } = useRevenueCat();
 
     const toggleLanguage = () => {
@@ -57,6 +59,24 @@ export const SettingsScreen = () => {
                         </View>
                     </View>
                 )}
+
+                <View style={styles.section}>
+                    <ThemedText variant="caption" color={colors.text.tertiary} style={styles.sectionTitle}>{t('settings_smart_features')}</ThemedText>
+                    <View style={styles.menuItem}>
+                        <View style={styles.menuLeft}>
+                            <Brain size={20} color={colors.text.primary} style={{ marginRight: 16 }} />
+                            <View>
+                                <ThemedText variant="body">{t('settings_smart_suggestions')}</ThemedText>
+                                <ThemedText variant="caption" color={colors.text.secondary}>{t('settings_smart_suggestions_desc')}</ThemedText>
+                            </View>
+                        </View>
+                        <Switch
+                            value={smartSuggestionsEnabled}
+                            onValueChange={toggleSmartSuggestions}
+                            trackColor={{ false: colors.border, true: colors.primary }}
+                        />
+                    </View>
+                </View>
 
                 <View style={styles.section}>
                     <ThemedText variant="caption" color={colors.text.tertiary} style={styles.sectionTitle}>GENERAL</ThemedText>
